@@ -1,0 +1,7 @@
+- name: Uninstall kubernetes
+  ansible.builtin.package:
+    name: 
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: absent

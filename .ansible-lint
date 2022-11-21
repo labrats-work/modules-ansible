@@ -1,0 +1,34 @@
+---
+exclude_paths:
+  - .ansible-freeipa-tests/
+  - .cache/
+  - .github/
+  - .pre-commit-config.yaml
+  - .tox/
+  - .venv/
+  - .yamllint
+  - molecule/
+  - tests/azure/
+  - meta/runtime.yml
+  - requirements-docker.yml
+  - requirements-podman.yml
+
+kinds:
+  - playbook: '**/tests/**/test_*.yml'
+  - playbook: '**/playbooks/**/*.yml'
+  - tasks: '**/tasks_*.yml'
+  - tasks: '**/env_*.yml'
+
+parseable: true
+
+quiet: false
+
+skip_list:
+  - '301'  # Commands should not change things if nothing needs doing'
+  - '305'  # Use shell only when shell functionality is required
+  - '306'  # risky-shell-pipe
+  - yaml   # yamllint should be executed separately.
+
+use_default_rules: true
+
+verbosity: 1

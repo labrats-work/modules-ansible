@@ -1,0 +1,15 @@
+- name: Update packages Ubuntu | Debian
+  ansible.builtin.apt: 
+    update_cache: yes
+  when: ansible_facts['distribution'] == "Ubuntu" or ansible_facts['distribution'] == "Debian"
+
+- name: Packages Installed
+  ansible.builtin.package:
+    name: open-iscsi
+    state: present
+
+- name: Service Started
+  service:
+    name: open-iscsi
+    state: started
+    enabled: yes

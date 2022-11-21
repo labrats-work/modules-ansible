@@ -1,0 +1,5 @@
+- name: Remove Packages
+  ansible.builtin.package:
+    name: 
+      - containerd
+    state: absent

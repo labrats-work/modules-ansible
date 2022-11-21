@@ -1,0 +1,40 @@
+- name: Update Apt Cache
+  ansible.builtin.apt: 
+    update_cache: yes
+  when: ansible_facts['distribution'] == "Ubuntu" or ansible_facts['distribution'] == "Debian"
+
+- name: Update Apt Cache
+  ansible.builtin.dnf: 
+    update_cache: yes
+  when: ansible_facts['distribution'] == "Rocky" or ansible_facts['distribution'] == "CentOS"
+
+- name: Service Installed
+  ansible.builtin.package:
+    name: 
+      - haproxy
+    state: present
+
+- name: Copy http error files.
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/etc/haproxy/errors/"
+    mode: 0644
+  with_fileglob:
+  -  haproxy/*.http"
+
+- name: Copy config
+  ansible.builtin.copy:
+    src:  haproxy/haproxy.cfg
+    dest: /etc/haproxy/haproxy.cfg
+    mode: 0644
+
+- name: Service Enabled
+  ansible.builtin.service:
+    name: haproxy
+    enabled: yes
+    state: started
+
+- name: Service Restart
+  ansible.builtin.service:
+    name: haproxy
+    state: restarted

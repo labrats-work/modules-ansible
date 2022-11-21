@@ -1,0 +1,22 @@
+---
+namespace: "awesome"
+name: "ansible_awesome"
+version: "1.0.0"
+description: "Ansible roles and modules for awesome"
+
+authors:
+  - "Thomas Pisula <tompisula@labrats.work>"
+
+repository: "https://github.com/tomp736/ansible_awesome"
+documentation: "https://github.com/tomp736/ansible_awesome/README.md"
+homepage: "https://github.com/tomp736/ansible_awesome"
+issues: "https://github.com/tomp736/ansible_awesome/issues"
+
+readme: "README.md"
+license: "GPL-3.0-or-later"
+
+tags:
+  - "linux"
+  - "kubernetes"
+  - "haproxy"
+  - "awesome"

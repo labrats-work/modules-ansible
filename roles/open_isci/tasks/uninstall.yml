@@ -1,0 +1,5 @@
+- name: Remove Packages
+  ansible.builtin.package:
+    name: 
+      - open-iscsi
+    state: absent

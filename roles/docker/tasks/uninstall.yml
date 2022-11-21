@@ -1,0 +1,8 @@
+- name: Ensure docker uninstalled
+  ansible.builtin.package:
+    name: 
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin    
+    state: absent
