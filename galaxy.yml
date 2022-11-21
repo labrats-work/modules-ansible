@@ -1,5 +1,5 @@
 ---
-namespace: "awesome"
+namespace: "tomp736"
 name: "ansible_awesome"
 version: "1.0.0"
 description: "Ansible roles and modules for awesome"
