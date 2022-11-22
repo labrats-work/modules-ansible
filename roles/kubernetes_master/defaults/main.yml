@@ -5,3 +5,5 @@ master_defaults:
   serviceSubnet: "10.96.0.0/12"
   podSubnet: "10.244.0.0/16"
   calico_ipv4pool_cidr: "10.244.0.0/16"
+
+kubernetes_debug: false
