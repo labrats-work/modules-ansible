@@ -1,15 +1,26 @@
+- name: Debug Master Defaults
+  ansible.builtin.debug: 
+    var: master_defaults
+  when: kubernetes_debug
+
+- name: Debug Master Group
+  ansible.builtin.debug: 
+    var: master_group
+  when: kubernetes_debug
 
 - name: Debug Master
-  debug:
+  ansible.builtin.debug: 
     var: master
-
-- name: Debug Master Defaults
-  debug:
-    var: master_defaults
+  when: kubernetes_debug
     
 - name: Create Merged Dictionary
   ansible.builtin.set_fact: 
     kubernetes: "{{ master_defaults | combine(master_group) | combine(master) }}"
+   
+- name: Debug Merged Dictionary
+  ansible.builtin.debug: 
+    var: kubernetes
+  when: kubernetes_debug
 
 - name: Copy files for kubeadm init.
   ansible.builtin.template:
@@ -101,3 +112,8 @@
       ca_data: "{{ grep_cluster_ca_data.stdout }}"
       server: "{{ grep_cluster_server.stdout }}"
       tlsBootstrapToken: "{{ kubeadm_token.stdout }}"
+
+- name: Debug Discovery
+  ansible.builtin.debug: 
+    var: discovery
+  when: kubernetes_debug

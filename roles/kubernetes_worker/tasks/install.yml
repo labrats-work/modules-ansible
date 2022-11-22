@@ -1,16 +1,28 @@
+- name: Debug Worker Defaults
+  ansible.builtin.debug: 
+    var: worker_defaults
+  when: kubernetes_debug
+
+- name: Debug Worker Group
+  ansible.builtin.debug: 
+    var: worker_group
+  when: kubernetes_debug
+
+- name: Debug Worker
+  ansible.builtin.debug: 
+    var: worker
+  when: kubernetes_debug
+
 - name: Create Merged Dictionary
   ansible.builtin.set_fact: 
     kubernetes: "{{ worker_defaults | combine(worker_group) | combine(worker) }}"
     discovery: "{{ hostvars[master_node]['discovery'] }}"
-
+   
 - name: Debug Merged Dictionary
   ansible.builtin.debug: 
     var: kubernetes
-
-- name: Debug Merged Dictionary
-  ansible.builtin.debug: 
-    var: discovery
-
+  when: kubernetes_debug
+  
 - name: Copy discovery.conf for kubeadm init.
   ansible.builtin.template:
     src: "templates/discovery.conf.j2"
