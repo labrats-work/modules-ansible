@@ -1,22 +1,22 @@
 ---
-namespace: "tomp736"
-name: "ansible_awesome"
-version: "1.0.1"
-description: "Ansible roles and modules for awesome"
+namespace: "labrats_work"
+name: "modules_ansible"
+version: "1.0.0"
+description: "Collection of ansible playbooks and roles"
 
 authors:
   - "Thomas Pisula <tompisula@labrats.work>"
 
-repository: "https://github.com/tomp736/ansible_awesome"
-documentation: "https://github.com/tomp736/ansible_awesome/README.md"
-homepage: "https://github.com/tomp736/ansible_awesome"
-issues: "https://github.com/tomp736/ansible_awesome/issues"
+repository: "https://github.com/labrats-work/modules-ansible"
+documentation: "https://github.com/labrats-work/modules-ansible/README.md"
+homepage: "https://github.com/labrats-work/modules-ansible"
+issues: "https://github.com/labrats-work/modules-ansible/issues"
 
 readme: "README.md"
 license: "GPL-3.0-or-later"
 
 tags:
   - "linux"
+  - "containers"
   - "kubernetes"
   - "haproxy"
-  - "awesome"
