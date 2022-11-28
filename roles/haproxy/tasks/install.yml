@@ -20,7 +20,7 @@
     dest: "/etc/haproxy/errors/"
     mode: 0644
   with_fileglob:
-  -  haproxy/*.http"
+    - haproxy/*.http
 
 - name: Copy config
   ansible.builtin.copy:
