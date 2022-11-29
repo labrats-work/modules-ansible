@@ -13,10 +13,20 @@
     var: master
   when: kubernetes_debug
     
-- name: Create Merged Dictionary
+- name: Set Default Kubernetes Facts
   ansible.builtin.set_fact: 
-    kubernetes: "{{ master_defaults | combine(master_group) | combine(master) }}"
-   
+    kubernetes: "{{ master_defaults }}"
+    
+- name: Merge Master_Group Kubernetes Facts
+  ansible.builtin.set_fact: 
+    kubernetes: "{{ kubernetes | combine(master_group) }}"
+  when: master_group is defined
+    
+- name: Merge Master Kubernetes Facts
+  ansible.builtin.set_fact: 
+    kubernetes: "{{ kubernetes | combine(master) }}"
+  when: master is defined
+
 - name: Debug Merged Dictionary
   ansible.builtin.debug: 
     var: kubernetes

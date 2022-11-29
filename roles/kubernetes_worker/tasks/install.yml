@@ -13,10 +13,20 @@
     var: worker
   when: kubernetes_debug
 
-- name: Create Merged Dictionary
+- name: Set Default Kubernetes Facts
   ansible.builtin.set_fact: 
-    kubernetes: "{{ worker_defaults | combine(worker_group) | combine(worker) }}"
+    kubernetes: "{{ worker_defaults }}"
     discovery: "{{ hostvars[master_node]['discovery'] }}"
+    
+- name: Merge Worker_Group Kubernetes Facts
+  ansible.builtin.set_fact: 
+    kubernetes: "{{ kubernetes | combine(worker_group) }}"
+  when: worker_group is defined
+    
+- name: Merge Worker Kubernetes Facts
+  ansible.builtin.set_fact: 
+    kubernetes: "{{ kubernetes | combine(worker) }}"
+  when: worker is defined
    
 - name: Debug Merged Dictionary
   ansible.builtin.debug: 
