@@ -1,0 +1,35 @@
+
+- name: Download flux installer script.
+  ansible.builtin.command: 
+    argv:
+      - wget 
+      - https://fluxcd.io/install.sh 
+      - -O 
+      - flux_install.sh
+    creates: flux_install.sh
+
+- name: Chmod flux installer script.
+  ansible.builtin.file: 
+    path: flux_install.sh
+    owner: sysadmin
+    group: sysadmin
+    mode: '0700'
+
+- name: Run flux installer script.
+  ansible.builtin.command: 
+    argv: 
+     - ./flux_install.sh
+
+- name: Run flux bootstrap.
+  become: no
+  ansible.builtin.command:
+    argv:
+      - flux
+      - bootstrap
+      - github
+      - --owner="{{ lookup('ansible.builtin.env','FLUX_INIT_OWNER') }}"
+      - --repository="{{ lookup('ansible.builtin.env','FLUX_INIT_REPO') }}"
+      - --path="{{ lookup('ansible.builtin.env','FLUX_INIT_PATH') }}"
+      - --personal
+  environment: 
+    GITLAB_TOKEN: "{{ lookup('ansible.builtin.env','FLUX_INIT_TOKEN') }}"
