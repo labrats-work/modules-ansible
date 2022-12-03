@@ -32,4 +32,4 @@
       - --path="{{ flux_init_path }}"
       - --personal
   environment: 
-    GITLAB_TOKEN: "{{ flux_init_token }}"
+    GITHUB_TOKEN: "{{ flux_init_token }}"
