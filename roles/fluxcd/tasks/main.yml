@@ -27,9 +27,9 @@
       - flux
       - bootstrap
       - github
-      - --owner="{{ lookup('ansible.builtin.env','FLUX_INIT_OWNER') }}"
-      - --repository="{{ lookup('ansible.builtin.env','FLUX_INIT_REPO') }}"
-      - --path="{{ lookup('ansible.builtin.env','FLUX_INIT_PATH') }}"
+      - --owner="{{ FLUX_INIT_OWNER }}"
+      - --repository="{{ FLUX_INIT_REPO }}"
+      - --path="{{ FLUX_INIT_PATH }}"
       - --personal
   environment: 
-    GITLAB_TOKEN: "{{ lookup('ansible.builtin.env','FLUX_INIT_TOKEN') }}"
+    GITLAB_TOKEN: "{{ FLUX_INIT_TOKEN }}"
