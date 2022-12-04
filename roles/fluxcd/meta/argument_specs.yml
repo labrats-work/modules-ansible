@@ -1,0 +1,22 @@
+  # roles/fluxcd/meta/argument_specs.yml
+---  
+argument_specs:
+  main:
+    short_description: The main entry point for the fluxcd role.
+    options:
+      flux_init_owner:
+        type: "str"
+        required: true
+        description: "Flux init owner."
+      flux_init_repo:
+        type: "str"
+        required: true
+        description: "Flux init repo."
+      flux_init_path:
+        type: "str"
+        required: true
+        description: "Flux init path."
+      flux_init_token:
+        type: "str"
+        required: true
+        description: "Flux init token."
