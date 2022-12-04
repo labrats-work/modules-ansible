@@ -27,9 +27,9 @@
       - flux
       - bootstrap
       - github
-      - --owner="{{ flux_init_owner }}"
-      - --repository="{{ flux_init_repo }}"
-      - --path="{{ flux_init_path }}"
+      - --owner={{ flux_init_owner }}
+      - --repository={{ flux_init_repo }}
+      - --path={{ flux_init_path }}
       - --personal
   environment: 
     GITHUB_TOKEN: "{{ flux_init_token }}"
