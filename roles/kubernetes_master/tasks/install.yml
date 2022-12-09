@@ -96,8 +96,7 @@
 
 - name: Create tigera operator.
   become: no
-  ansible.builtin.command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.0/manifests/tigera-operator.yaml
-  ignore_errors: yes
+  ansible.builtin.command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.0/manifests/tigera-operator.yaml
 
 - name: Run calico init.
   become: no
