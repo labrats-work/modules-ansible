@@ -22,14 +22,6 @@
 
 - name: Run flux bootstrap.
   become: no
-  ansible.builtin.command:
-    argv:
-      - flux
-      - bootstrap
-      - github
-      - --owner={{ flux_init_owner }}
-      - --repository={{ flux_init_repo }}
-      - --path={{ flux_init_path }}
-      - --personal
+  ansible.builtin.shell: flux bootstrap github --owner={{ flux_init_owner }} --repository={{ flux_init_repo }} --path={{ flux_init_path }} --personal | tee fluxbootstrap.out
   environment: 
     GITHUB_TOKEN: "{{ flux_init_token }}"

@@ -3,7 +3,7 @@
     update_cache: yes
   when: ansible_facts['distribution'] == "Ubuntu" or ansible_facts['distribution'] == "Debian"
 
-- name: Update Apt Cache
+- name: Update Dnf Cache
   ansible.builtin.dnf: 
     update_cache: yes
   when: ansible_facts['distribution'] == "Rocky" or ansible_facts['distribution'] == "CentOS"
