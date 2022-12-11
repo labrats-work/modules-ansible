@@ -16,7 +16,8 @@ jobs:
           echo "version=$(cat galaxy.yml | grep version)" >> $GITHUB_OUTPUT
       
       # Increment the patch version number by one
-      - run: |
+      - id: patch_version
+        run: |
           version=$(echo "${{ steps.current_version.outputs.version }}" | awk -F':' '{print $2}')
           major=$(echo "$version" | awk -F'.' '{print $1}')
           minor=$(echo "$version" | awk -F'.' '{print $2}')
@@ -26,13 +27,15 @@ jobs:
           echo "Updating version to $new_version"
           sed -i "s/$version/$new_version/g" galaxy.yml
         shell: bash
+        run: |
+          echo "version=$(cat galaxy.yml | grep version)" >> $GITHUB_OUTPUT
       
       # Commit the changes to the repository without pushing
       - run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add galaxy.yml
-          git commit -m "Update galaxy.yml version to $new_version"
+          git commit -m "Update galaxy.yml version to ${{ steps.patch_version.outputs.version }}"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
