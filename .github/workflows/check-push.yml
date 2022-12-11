@@ -26,8 +26,6 @@ jobs:
           new_version="$major.$minor.$new_patch"
           echo "Updating version to $new_version"
           sed -i "s/$version/$new_version/g" galaxy.yml
-        shell: bash
-        run: |
           echo "version=$(cat galaxy.yml | grep version)" >> $GITHUB_OUTPUT
       
       # Commit the changes to the repository without pushing
