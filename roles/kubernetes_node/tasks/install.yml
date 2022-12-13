@@ -60,7 +60,6 @@
       ansible.builtin.apt_repository:
         repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
         state: present
-        key_url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     
     - name: Update packages Ubuntu | Debian
       ansible.builtin.apt: 
