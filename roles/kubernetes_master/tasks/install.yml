@@ -35,6 +35,7 @@
 - name: Check if Kubernetes is installed
   command: kubectl version
   register: kubectl_result
+  ignore_errors: true
 
 - name: Install if kubectl version rc is zero
   when: kubectl_result.rc == 0
