@@ -1,77 +1,75 @@
-- name: Update packages Ubuntu | Debian.
-  ansible.builtin.apt: 
-    update_cache: yes
+- name: Base Kubernetes Node Configuration
   when: ansible_facts['distribution'] == "Ubuntu" or ansible_facts['distribution'] == "Debian"
+  block:
+    - name: Update packages Ubuntu | Debian.
+      ansible.builtin.apt: 
+        update_cache: yes
 
-- name: Ensure pre-requisite packages.
-  package:
-    name: 
-    - wget 
-    - curl 
-    - vim 
-    - git
-    - gnupg2
-    - software-properties-common
-    - apt-transport-https
-    - ca-certificates
-    state: latest
+    - name: Ensure pre-requisite packages.
+      package:
+        name: 
+        - wget 
+        - curl 
+        - vim 
+        - git
+        - gnupg2
+        - software-properties-common
+        - apt-transport-https
+        - ca-certificates
+        state: latest
 
-- name: Add the overlay module
-  community.general.modprobe:
-    name: overlay
-    state: present
+    - name: Add the overlay module
+      community.general.modprobe:
+        name: overlay
+        state: present
 
-- name: Add the br_netfilter module
-  community.general.modprobe:
-    name: br_netfilter
-    state: present
+    - name: Add the br_netfilter module
+      community.general.modprobe:
+        name: br_netfilter
+        state: present
 
-- name: Kubelet sysctl-settings
-  ansible.posix.sysctl:
-    name: '{{ item.key }}'
-    value: '{{ item.value }}'
-    sysctl_file: /etc/sysctl.d/90-kubelet.conf
-    sysctl_set: yes
-    state: present
-    reload: yes
-    ignoreerrors: yes
-  with_dict:
-    vm.overcommit_memory: 1
-    kernel.panic: 10
-    kernel.panic_on_oops: 1
-  when: ansible_facts['distribution'] == "Ubuntu" or ansible_facts['distribution'] == "Debian"
+    - name: Kubelet sysctl-settings
+      ansible.posix.sysctl:
+        name: '{{ item.key }}'
+        value: '{{ item.value }}'
+        sysctl_file: /etc/sysctl.d/90-kubelet.conf
+        sysctl_set: yes
+        state: present
+        reload: yes
+        ignoreerrors: yes
+      with_dict:
+        vm.overcommit_memory: 1
+        kernel.panic: 10
+        kernel.panic_on_oops: 1
 
-- name: Kubernetes sysctl-settings
-  ansible.posix.sysctl:
-    name: '{{ item.key }}'
-    value: '{{ item.value }}'
-    sysctl_file: /etc/sysctl.d/90-kubernetes.conf
-    sysctl_set: yes
-    state: present
-    reload: yes
-    ignoreerrors: yes
-  with_dict:
-    net.bridge.bridge-nf-call-ip6tables: 1
-    net.bridge.bridge-nf-call-iptables: 1
-    net.ipv4.ip_forward: 1
-  when: ansible_facts['distribution'] == "Ubuntu" or ansible_facts['distribution'] == "Debian"
-  
-- name: Setup keyring for kubernetes
-  ansible.builtin.shell: |      
-    curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    chmod a+r /usr/share/keyrings/kubernetes-archive-keyring.gpg
-    echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
-  when: ansible_facts['distribution'] == "Ubuntu" or ansible_facts['distribution'] == "Debian"
- 
-- name: Update packages Ubuntu | Debian
-  ansible.builtin.apt: 
-    update_cache: yes
-  when: ansible_facts['distribution'] == "Ubuntu" or ansible_facts['distribution'] == "Debian"
+    - name: Kubernetes sysctl-settings
+      ansible.posix.sysctl:
+        name: '{{ item.key }}'
+        value: '{{ item.value }}'
+        sysctl_file: /etc/sysctl.d/90-kubernetes.conf
+        sysctl_set: yes
+        state: present
+        reload: yes
+        ignoreerrors: yes
+      with_dict:
+        net.bridge.bridge-nf-call-ip6tables: 1
+        net.bridge.bridge-nf-call-iptables: 1
+        net.ipv4.ip_forward: 1
+      
+    - name: Add Kubernetes apt repository
+      ansible.builtin.apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        key_url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    
+    - name: Update packages Ubuntu | Debian
+      ansible.builtin.apt: 
+        update_cache: yes
 
-- name: Install kubernetes
-  ansible.builtin.package:
-    name: 
-      - kubelet
-      - kubeadm
-      - kubectl
-    state: present
+    - name: Install Kubernetes Components
+      ansible.builtin.package:
+        name: 
+          - kubelet={{kubernetesVersion}}
+          - kubeadm={{kubernetesVersion}}
+          - kubectl={{kubernetesVersion}}
+        state: present
