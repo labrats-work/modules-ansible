@@ -55,7 +55,13 @@
         net.bridge.bridge-nf-call-ip6tables: 1
         net.bridge.bridge-nf-call-iptables: 1
         net.ipv4.ip_forward: 1
-      
+        
+    - name: Install Kubernetes GPG key
+      become: true
+      ansible.builtin.apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
     - name: Add Kubernetes apt repository
       ansible.builtin.apt_repository:
         repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
