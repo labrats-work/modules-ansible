@@ -95,12 +95,10 @@
     - name: Create tigera operator.
       become: no
       ansible.builtin.command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.0/manifests/tigera-operator.yaml
-      ignore_errors: yes
 
     - name: Run calico init.
       become: no
       ansible.builtin.command: kubectl apply -f calico_init.yaml
-      ignore_errors: yes
 
 - name: Get cluster_ca_data from master config file.
   ansible.builtin.shell: grep certificate-authority-data /etc/kubernetes/admin.conf | tr -d ' ' | cut -d ':' -f 2-
