@@ -38,7 +38,7 @@
   ignore_errors: true
 
 - name: Install if kubectl version rc is zero
-  when: kubectl_result.rc == 0
+  when: kubectl_result.rc == 1
   block:
     - name: Copy files for kubeadm init.
       ansible.builtin.template:
@@ -65,7 +65,6 @@
         port: 6443
         delay: 10
         host: localhost
-      when: kubectl_result.rc == 0
 
     - name: Create .kube directory
       ansible.builtin.file:
