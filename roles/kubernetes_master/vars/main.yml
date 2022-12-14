@@ -1,0 +1,3 @@
+---
+# vars file for kubernetes_node
+kubernetes_iface:
