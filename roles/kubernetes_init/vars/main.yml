@@ -1,0 +1,3 @@
+---
+# vars file for kubernetes_init
+kubernetes_iface:
