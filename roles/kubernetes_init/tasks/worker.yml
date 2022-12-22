@@ -1,58 +1,40 @@
-- name: Debug Worker Defaults
-  ansible.builtin.debug: 
-    var: worker_defaults
-  when: kubernetes_debug
+- name: Check if Kubernetes is installed
+  command: kubectl version
+  register: kubectl_result
+  ignore_errors: true
 
-- name: Debug Worker Group
-  ansible.builtin.debug: 
-    var: worker_group
-  when: kubernetes_debug
+- name: Install if kubectl version rc is zero
+  when: kubectl_result.rc == 1
+  block:
 
-- name: Debug Worker
-  ansible.builtin.debug: 
-    var: worker
-  when: kubernetes_debug
+    - name: Copy discovery.conf for kubeadm init.
+      ansible.builtin.template:
+        src: "templates/discovery.conf.j2"
+        dest: /root/discovery.conf
+        owner: root
+        group: root
+        mode: '0600'
 
-- name: Set Default Kubernetes Facts
-  ansible.builtin.set_fact: 
-    kubernetes: "{{ worker_defaults }}"
-    discovery: "{{ hostvars[master_node]['discovery'] }}"
-    
-- name: Merge Worker_Group Kubernetes Facts
-  ansible.builtin.set_fact: 
-    kubernetes: "{{ kubernetes | combine(worker_group) }}"
-  when: worker_group is defined
-    
-- name: Merge Worker Kubernetes Facts
-  ansible.builtin.set_fact: 
-    kubernetes: "{{ kubernetes | combine(worker) }}"
-  when: worker is defined
-   
-- name: Debug Merged Dictionary
-  ansible.builtin.debug: 
-    var: kubernetes
-  when: kubernetes_debug
-  
-- name: Copy discovery.conf for kubeadm init.
-  ansible.builtin.template:
-    src: "templates/discovery.conf.j2"
-    dest: /root/discovery.conf
-    owner: root
-    group: root
-    mode: '0600'
+    - name: Default kubeadm join.
+      ansible.builtin.command: kubeadm config print join-defaults
+      register: kubeadm_config_print
 
-- name: Copy kubeadm_join.yaml for kubeadm join.
-  ansible.builtin.template:
-    src: "templates/kubeadm_join.yaml.j2"
-    dest: /root/kubeadm_join.yaml
-    owner: root
-    group: root
-    mode: '0600'
+    - name: Combine with user defined vars.
+      ansible.builtin.copy:
+        content: |-
+          {{ dict|combine(changes)|to_nice_yaml }}
+        dest: /root/kubeadm_join.yaml
+        owner: root
+        group: root
+        mode: '0600'
+      vars:
+        dict: "{{ kubeadm_config_print.stdout|from_yaml }}"
+        changes: "{{ kubeadm_join }}"
 
-- name: Restart container runtime
-  ansible.builtin.service:
-    name: containerd
-    state: restarted 
+    - name: Restart container runtime
+      ansible.builtin.service:
+        name: containerd
+        state: restarted 
 
-- name: Run kubeadm init.
-  ansible.builtin.shell: kubeadm join --config=/root/kubeadm_join.yaml | tee kubeadm_join.out
+    - name: Run kubeadm init.
+      ansible.builtin.shell: kubeadm join --config=/root/kubeadm_join.yaml | tee kubeadm_join.out

@@ -9,7 +9,7 @@
   block:
     - name: Default kubeadm init.
       ansible.builtin.command: kubeadm config print init-defaults
-      register: kubeadm_init        
+      register: kubeadm_config_print
 
     - name: Combine with user defined vars.
       ansible.builtin.copy:
@@ -20,29 +20,8 @@
         group: root
         mode: '0600'
       vars:
-        dict: "{{ kubeadm_init.stdout|from_yaml }}"
-        changes:
-          nodeRegistration: 
-            taints: null
-            name: "{{ ansible_facts['fqdn'] }}"
-            criSocket: "unix:///var/run/containerd/containerd.sock"
-          localAPIEndpoint:
-            advertiseAddress: "{{ ansible_facts[kubernetes_iface]['ipv4']['address'] }}"
-            bindPort: "{{ kubernetes['bindPort'] }}"
-          networking:
-            serviceSubnet: "{{ kubernetes['serviceSubnet'] }}"
-            podSubnet: "{{ kubernetes['podSubnet'] }}"
-            dnsDomain: cluster.local
-          kubernetesVersion: "{{ kubernetes['kubernetesVersion'] }}"
-          controlPlaneEndpoint: "{{ ansible_facts[kubernetes_iface]['ipv4']['address'] }}:{{ kubernetes['bindPort'] }}"
-          apiServer:
-            certSANs:
-            - "{{ ansible_facts['fqdn'] }}"
-            timeoutForControlPlane: 10m0s
-          certificatesDir: "/etc/kubernetes/pki"
-          clusterName: "{{ kubernetes['clusterName'] }}"
-          controllerManager: {}
-          scheduler: {}
+        dict: "{{ kubeadm_config_print.stdout|from_yaml }}"
+        changes: "{{ kubeadm_init }}"
 
     - name: Restart container runtime
       ansible.builtin.service:
