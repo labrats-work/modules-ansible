@@ -14,7 +14,7 @@
     - name: Combine with user defined vars.
       ansible.builtin.copy:
         content: |-
-          {{ dict|combine(changes)|to_nice_yaml }}
+          {{ dict|combine(changes, recursive=true)|to_nice_yaml }}
         dest: /root/kubeadm_init.yaml
         owner: root
         group: root
