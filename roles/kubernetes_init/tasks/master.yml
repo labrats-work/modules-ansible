@@ -93,8 +93,3 @@
       ca_data: "{{ grep_cluster_ca_data.stdout }}"
       server: "{{ grep_cluster_server.stdout }}"
       tlsBootstrapToken: "{{ kubeadm_token.stdout }}"
-
-- name: Debug Discovery
-  ansible.builtin.debug: 
-    var: discovery
-  when: kubernetes_debug
