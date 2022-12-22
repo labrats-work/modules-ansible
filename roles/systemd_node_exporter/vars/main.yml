@@ -1,0 +1,5 @@
+---
+# vars file for systemd_node_exporter
+
+version:
+distro:

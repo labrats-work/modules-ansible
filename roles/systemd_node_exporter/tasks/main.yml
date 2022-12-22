@@ -1,0 +1,101 @@
+---
+# tasks file for systemd_node_exporter
+
+# Step 1 - Create User and Directories
+- name: Create User and Directories
+  block:
+
+  - name: Create User
+    user:
+      name: node_exporter
+      shell: /sbin/nologin
+
+  - name: Create Directory
+    ansible.builtin.file:
+      path: /var/lib/node_exporter/textfile_collector
+      owner: node_exporter
+      group: node_exporter
+      state: directory
+      mode: 0750
+
+# Step 2 - Download and Extract Binaries
+- name: Download and Extract Binaries
+  block:
+
+  - name: Download Node Exporter Tar
+    get_url:
+      url: "https://github.com/prometheus/node_exporter/releases/download/v{{ version }}/node_exporter-{{ version }}.{{ distro }}.tar.gz"
+      dest: /tmp/node_exporter.tar.gz
+
+  - name: Download Node Exporter Checksums
+    get_url:
+      url: "https://github.com/prometheus/node_exporter/releases/download/v{{ version }}/sha256sums.txt"
+      dest: /tmp/node_exporter.sha256sums
+      
+  - name: Calculate Tar Checksum
+    shell: sha256sum /tmp/node_exporter.tar.gz | cut -d ' ' -f 1
+    register: node_exporter_tar_checksum_calculated
+
+  - name: Register Tar Checksum Downloaded
+    shell: cat /tmp/node_exporter.sha256sums | grep {{ version }} | grep {{ distro }} | cut -d ' ' -f 1
+    register: node_exporter_tar_checksum_downloaded
+
+  - name: Compare Node Exporter checksum
+    assert:
+      that:
+        - node_exporter_tar_checksum_downloaded.stdout == node_exporter_tar_checksum_calculated.stdout
+
+  - name: Extract Node Exporter binary
+    ansible.builtin.unarchive:
+      src: /tmp/node_exporter.tar.gz
+      dest: /usr/local/bin
+      owner: node_exporter
+      group: node_exporter
+      include:
+      - node_exporter-{{ version }}.{{ distro }}/node_exporter
+      extra_opts:
+      - --strip-components=1
+      remote_src: yes
+      creates: /usr/local/bin/node_exporter
+
+# Step 3 - Create Unit, Socket, Config, and Enable
+- name: Create Unit and Enable
+  block:
+
+  - name: Create node_exporter Service
+    template:
+      src: files/node_exporter.service.j2
+      dest: /etc/systemd/system/node_exporter.service
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Create node_exporter Socket
+    template:
+      src: files/node_exporter.socket.j2
+      dest: /etc/systemd/system/node_exporter.socket
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Create node_exporter default service file.
+    copy:
+      dest: /etc/default/node_exporter
+      content: OPTIONS="--collector.textfile.directory /var/lib/node_exporter/textfile_collector"
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: Enable and start node_exporter socket
+    systemd:
+      daemon_reload: yes
+      name: node_exporter.socket
+      state: restarted
+      enabled: yes
+
+  - name: Enable and start node_exporter service
+    systemd:
+      daemon_reload: yes
+      name: node_exporter.service
+      state: restarted
+      enabled: yes

@@ -1,0 +1,5 @@
+---
+# defaults file for systemd_node_exporter
+
+version: "1.5.0"
+distro: "linux-amd64"
