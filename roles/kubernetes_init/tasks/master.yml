@@ -7,13 +7,42 @@
 - name: Install if kubectl version rc is zero
   when: kubectl_result.rc == 1
   block:
-    - name: Copy files for kubeadm init.
-      ansible.builtin.template:
-        src: "templates/kubeadm_init.yaml.j2"
+    - name: Default kubeadm init.
+      ansible.builtin.command: kubeadm config print init-defaults
+      register: kubeadm_init        
+
+    - name: Combine with user defined vars.
+      ansible.builtin.copy:
+        content: |-
+          {{ dict|combine(changes)|to_nice_yaml }}
         dest: /root/kubeadm_init.yaml
         owner: root
         group: root
         mode: '0600'
+      vars:
+        dict: "{{ kubeadm_init.stdout|from_yaml }}"
+        changes:
+          nodeRegistration: 
+            taints: null
+            name: "{{ ansible_facts['fqdn'] }}"
+            criSocket: "unix:///var/run/containerd/containerd.sock"
+          localAPIEndpoint:
+            advertiseAddress: "{{ ansible_facts[kubernetes_iface]['ipv4']['address'] }}"
+            bindPort: "{{ kubernetes['bindPort'] }}"
+          networking:
+            serviceSubnet: "{{ kubernetes['serviceSubnet'] }}"
+            podSubnet: "{{ kubernetes['podSubnet'] }}"
+            dnsDomain: cluster.local
+          kubernetesVersion: "{{ kubernetes['kubernetesVersion'] }}"
+          controlPlaneEndpoint: "{{ ansible_facts[kubernetes_iface]['ipv4']['address'] }}:{{ kubernetes['bindPort'] }}"
+          apiServer:
+            certSANs:
+            - "{{ ansible_facts['fqdn'] }}"
+            timeoutForControlPlane: 10m0s
+          certificatesDir: "/etc/kubernetes/pki"
+          clusterName: "{{ kubernetes['clusterName'] }}"
+          controllerManager: {}
+          scheduler: {}
 
     - name: Restart container runtime
       ansible.builtin.service:
