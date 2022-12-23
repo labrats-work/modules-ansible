@@ -80,6 +80,5 @@
   register: kubeadm_join_token
 
 - name: Get ca cert hash for join.
-  ansible:builtin.shell: |
-    "openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'"
+  ansible.builtin.shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
   register: kubeadm_join_cert_hash
