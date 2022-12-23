@@ -14,8 +14,10 @@
     - name: Split into separate documents (initconfiguration, clusterconfiguration).
       ansible.builtin.debug: 
         msg: "{{ item }}"
-      register: kubeadm_config
+      register: kubeadm_config_{{ idx }}
       loop: "{{ kubeadm_config_print.stdout|split('---') }}"
+      loop_control:
+        index_var: idx
 
     - name: Combine with user defined vars.
       ansible.builtin.copy:
