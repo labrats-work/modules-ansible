@@ -1,0 +1,8 @@
+---
+# tasks file for kubernetes_init
+
+- include_tasks: init.yml
+  when: kubeadm == 'init'
+
+- include_tasks: join.yml
+  when: kubeadm == 'join'

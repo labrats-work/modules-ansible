@@ -9,7 +9,11 @@ nodeRegistration:
     - NumCPU
     - IsPrivilegedUser  
 localAPIEndpoint:
+<<<<<<< HEAD
   advertiseAddress: {{ ansible_facts['knet']['ipv4']['address'] }}
+=======
+  advertiseAddress: {{ ansible_facts[kubernetes_iface]['ipv4']['address'] }}
+>>>>>>> dev
   bindPort: {{ kubernetes['bindPort'] }}
 ---
 apiVersion: kubeadm.k8s.io/v1beta3
@@ -22,7 +26,11 @@ networking:
   podSubnet: {{ kubernetes['podSubnet'] }}
   dnsDomain: cluster.local
 kubernetesVersion: {{ kubernetes['kubernetesVersion'] }}
+<<<<<<< HEAD
 controlPlaneEndpoint: "{{ ansible_facts['knet']['ipv4']['address'] }}:{{ kubernetes['bindPort'] }}"
+=======
+controlPlaneEndpoint: "{{ ansible_facts[kubernetes_iface]['ipv4']['address'] }}:{{ kubernetes['bindPort'] }}"
+>>>>>>> dev
 apiServer:
   certSANs:
   - "{{ ansible_facts['fqdn'] }}"
