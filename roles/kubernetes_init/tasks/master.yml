@@ -18,12 +18,12 @@
     - name: Combine with user defined vars (initconfiguration, clusterconfiguration).
       ansible.builtin.copy:
         content: |-
-          {{ item|combine(kubeadm_init, recursive=true)|to_nice_yaml }}
+          {{ item|from_yaml|combine(kubeadm_init, recursive=true)|to_nice_yaml }}
         dest: /root/kubeadm_init_{{ idx }}.yaml
         owner: root
         group: root
         mode: '0600'
-      loop: "{{ kubeadm_config_print.stdout|split('---')|from_yaml }}"
+      loop: "{{ kubeadm_config_print.stdout|split('---') }}"
       loop_control:
         index_var: idx
 
