@@ -10,7 +10,7 @@
   block:
 
     - name: Create empty config file.
-      become: no
+      become: yes
       ansible.builtin.copy:
         content: ""
         dest: /root/kubeadm_init.yaml
@@ -19,7 +19,7 @@
         mode: '0600'
 
     - name: Create yaml configs.
-      become: no
+      become: yes
       ansible.builtin.blockinfile:
         path: /root/kubeadm_init.yaml
         marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.kind }}"
