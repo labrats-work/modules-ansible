@@ -12,7 +12,8 @@
       register: kubeadm_config_print
 
     - name: Split into separate documents (initconfiguration, clusterconfiguration).
-      ansible.builtin.debug: "{{ item }}"
+      ansible.builtin.debug: 
+        msg: "{{ item }}"
       register: kubeadm_config
       loop: "{{ kubeadm_config_print.stdout|split('---') }}"
 
