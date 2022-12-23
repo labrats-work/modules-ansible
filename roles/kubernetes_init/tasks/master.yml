@@ -25,7 +25,7 @@
         marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.kind }}"
         block: |
           {{ item | to_nice_yaml(sort_keys=false) }}
-          {%- if not loop.last %}
+          {%- if not ansible_loop.last %}
           ---
           {% endif %}
       loop: "{{ yaml_configs }}"
