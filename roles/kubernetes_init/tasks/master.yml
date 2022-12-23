@@ -1,6 +1,6 @@
 
 - name: Check if Kubernetes is installed
-  command: kubectl version
+  command: kubectl version --short
   register: kubectl_result
   ignore_errors: true
 
