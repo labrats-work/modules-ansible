@@ -24,8 +24,8 @@
         path: /root/kubeadm_init.yaml
         marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.kind }}"
         block: |
-          ---
           {{ item | to_nice_yaml(sort_keys=false) }}
+          ---
       loop: "{{ yaml_configs }}"
 
     - name: Restart container runtime
