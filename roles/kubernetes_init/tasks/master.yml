@@ -11,11 +11,11 @@
     - name: Create init config file.
       ansible.builtin.copy:
         content: |-
-          {{ kubeadm_init.init_config | to_nice_yaml }}
+          {{ kubeadm_init.init_config | to_nice_yaml(sort_keys=false) }}
           ---
-          {{ kubeadm_init.cluster_config | to_nice_yaml }}
+          {{ kubeadm_init.cluster_config | to_nice_yaml(sort_keys=false) }}
           ---
-          {{ kubeadm_init.kubelet_config | to_nice_yaml }}
+          {{ kubeadm_init.kubelet_config | to_nice_yaml(sort_keys=false) }}
 
         dest: /root/kubeadm_init.yaml
         owner: root
