@@ -67,21 +67,18 @@
         group: sysadmin
         mode: '0600'
 
-- name: Get cluster_ca_data from master config file.
-  ansible.builtin.shell: grep certificate-authority-data /etc/kubernetes/admin.conf | tr -d ' ' | cut -d ':' -f 2-
-  register: grep_cluster_ca_data
-
 - name: Get cluster_server from master config file.
   ansible.builtin.shell: grep server /etc/kubernetes/admin.conf | tr -d ' ' | cut -d ':' -f 2-
   register: grep_cluster_server
 
-- name: Get kubeadm_token.
-  ansible.builtin.shell: kubeadm token create
-  register: kubeadm_token
-
 - name: Set facts for join data.
   ansible.builtin.set_fact: 
-    discovery:
-      ca_data: "{{ grep_cluster_ca_data.stdout }}"
-      server: "{{ grep_cluster_server.stdout }}"
-      tlsBootstrapToken: "{{ kubeadm_token.stdout }}"
+    kubeadm_join_endpoint: "{{ grep_cluster_server.stdout }}"
+
+- name: Get token for join.
+  ansible.builtin.shell: kubeadm token create
+  register: kubeadm_join_token
+
+- name: Get ca cert hash for join.
+  ansible:builtin.shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: kubeadm_join_cert_hash
