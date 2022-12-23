@@ -82,5 +82,5 @@
 - name: Set facts for join data.
   ansible.builtin.set_fact: 
     join_endpoint: "{{ kubeadm_join_apiserver.stdout }}"
-    join_cert_hash: "{{ kubeadm_join_cert_hash.stdout }}"
     join_token: "{{ kubeadm_join_token.stdout }}"
+    join_cert_hash: "{{ kubeadm_join_cert_hash.stdout }}"
