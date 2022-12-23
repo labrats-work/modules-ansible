@@ -57,23 +57,6 @@
         group: sysadmin
         mode: '0600'
 
-    - name: Copy files for calico init.
-      become: no
-      ansible.builtin.template:
-        src: "templates/calico_init.yaml.j2"
-        dest: calico_init.yaml
-        owner: sysadmin
-        group: sysadmin
-        mode: '0600'
-
-    - name: Create tigera operator.
-      become: no
-      ansible.builtin.command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.0/manifests/tigera-operator.yaml
-
-    - name: Run calico init.
-      become: no
-      ansible.builtin.command: kubectl apply -f calico_init.yaml
-
 - name: Get cluster_ca_data from master config file.
   ansible.builtin.shell: grep certificate-authority-data /etc/kubernetes/admin.conf | tr -d ' ' | cut -d ':' -f 2-
   register: grep_cluster_ca_data
