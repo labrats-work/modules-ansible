@@ -23,9 +23,13 @@
     path: calico_init.yaml
     marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.kind }}"
     block: |
-      ---
       {{ item | to_nice_yaml(sort_keys=false) }}
+      {%- if not ansible_loop.last %}
+      ---
+      {% endif %}
   loop: "{{ yaml_configs }}"
+  loop_control:
+    extended: true
 
 - name: Run calico init.
   become: no
