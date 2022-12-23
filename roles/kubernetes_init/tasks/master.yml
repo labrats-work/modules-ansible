@@ -25,8 +25,12 @@
         marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.kind }}"
         block: |
           {{ item | to_nice_yaml(sort_keys=false) }}
+          {%- if not loop.last %}
           ---
+          {% endif %}
       loop: "{{ yaml_configs }}"
+      loop_control:
+        extended: true
 
     - name: Restart container runtime
       ansible.builtin.service:
