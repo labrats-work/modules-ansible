@@ -38,7 +38,7 @@ jobs:
           git add galaxy.yml
           git commit -m "Update galaxy.yml version to ${{ steps.patch_version.outputs.version }}"
           git push
-          git tag ${{ steps.patch_version.outputs.version }}
+          git tag v${{ steps.patch_version.outputs.version }}
           git push origin --tags
           
         env:
