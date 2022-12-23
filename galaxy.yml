@@ -1,7 +1,7 @@
 ---
 namespace: "labrats_work"
 name: "modules_ansible"
-version: 1.0.36
+version: 1.0.37
 description: "Collection of ansible playbooks and roles"
 
 authors:
