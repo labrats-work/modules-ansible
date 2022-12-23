@@ -11,6 +11,12 @@
   ansible.builtin.command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.0/manifests/tigera-operator.yaml
   when: get_tigera_operator.stdout != 'tigera-operator'
 
+- name: Create empty config file.
+  become: no
+  ansible.builtin.copy:
+    content: ""
+    dest: calico_init.yaml
+
 - name: Create yaml configs.
   become: no
   ansible.builtin.blockinfile:
