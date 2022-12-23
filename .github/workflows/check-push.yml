@@ -29,16 +29,16 @@ jobs:
           new_version="$major.$minor.$new_patch"
           echo "Updating version to $new_version"
           sed -i "s/$version/$new_version/g" galaxy.yml
-          echo "version=$(cat galaxy.yml | grep version)" >> $GITHUB_OUTPUT
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
       
       # Commit the changes to the repository without pushing
       - run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add galaxy.yml
-          git commit -m "Update galaxy.yml version to ${{ steps.patch_version.outputs.version }}"
+          git commit -m "Update galaxy.yml version to ${{ steps.patch_version.outputs.new_version }}"
           git push
-          git tag ${{ steps.patch_version.outputs.version }}
+          git tag ${{ steps.patch_version.outputs.new_version }}
           git push origin --tags
           
         env:
