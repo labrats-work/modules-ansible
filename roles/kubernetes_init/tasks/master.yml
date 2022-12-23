@@ -83,4 +83,4 @@
   ansible.builtin.set_fact: 
     join_endpoint: "{{ kubeadm_join_apiserver.stdout }}"
     join_token: "{{ kubeadm_join_token.stdout }}"
-    join_cert_hash: "{{ kubeadm_join_cert_hash.stdout }}"
+    join_cert_hash: sha256:{{ kubeadm_join_cert_hash.stdout }}
