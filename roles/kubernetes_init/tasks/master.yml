@@ -68,7 +68,7 @@
         mode: '0600'
 
 - name: Get cluster_server from master config file.
-  ansible.builtin.shell: sudo cat /etc/kubernetes/manifests/kube-apiserver.yaml | grep "kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint" | cut -d ':' -f 2,3 | tr -d ' '
+  ansible.builtin.shell: cat /etc/kubernetes/manifests/kube-apiserver.yaml | grep "kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint" | cut -d ':' -f 2,3 | tr -d ' '
   register: kubeadm_join_apiserver
 
 - name: Get token for join.
