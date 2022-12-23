@@ -11,25 +11,19 @@
       ansible.builtin.shell: kubeadm config print init-defaults
       register: kubeadm_config_print
 
-    - name: Split into separate documents (initconfiguration, clusterconfiguration).
-      ansible.builtin.debug: 
-        msg: "{{ item }}"
-      register: kubeadm_config_{{ idx }}
-      loop: "{{ kubeadm_config_print.stdout|split('---') }}"
-      loop_control:
-        index_var: idx
-
-    - name: Combine with user defined vars.
+    - name: Combine with user defined vars (initconfiguration, clusterconfiguration).
       ansible.builtin.copy:
         content: |-
-          {{ dict|combine(changes, recursive=true)|to_nice_yaml }}
+          {{ item|combine(changes, recursive=true)|to_nice_yaml }}
         dest: /root/kubeadm_init.yaml
         owner: root
         group: root
         mode: '0600'
       vars:
-        dict: "{{ kubeadm_config[0]|from_yaml }}"
         changes: "{{ kubeadm_init }}"
+      loop: "{{ kubeadm_config_print.stdout|split('---')|from_yaml }}"
+      loop_control:
+        index_var: idx
 
     - name: Restart container runtime
       ansible.builtin.service:
