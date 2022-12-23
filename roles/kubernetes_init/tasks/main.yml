@@ -1,8 +1,8 @@
 ---
 # tasks file for kubernetes_init
 
-- include_tasks: master.yml
-  when: nodetype == 'master'
+- include_tasks: init.yml
+  when: kubeadm == 'init'
 
-- include_tasks: worker.yml
-  when: nodetype == 'worker'
+- include_tasks: join.yml
+  when: kubeadm == 'join'

@@ -1,0 +1,36 @@
+---
+# tasks file for calico_init
+
+- name: Check for tigera operator.
+  become: no
+  ansible.builtin.command: kubectl get deployment -n tigera-operator -o=jsonpath='{range .items[?(@.metadata.name=="tigera-operator")]}{.metadata.name}'
+  register: get_tigera_operator
+
+- name: Create tigera operator.
+  become: no
+  ansible.builtin.command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.0/manifests/tigera-operator.yaml
+  when: get_tigera_operator.stdout != 'tigera-operator'
+
+- name: Create empty config file.
+  become: no
+  ansible.builtin.copy:
+    content: ""
+    dest: calico_init.yaml
+
+- name: Create yaml configs.
+  become: no
+  ansible.builtin.blockinfile:
+    path: calico_init.yaml
+    marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.kind }}"
+    block: |
+      {{ item | to_nice_yaml(sort_keys=false) }}
+      {%- if not ansible_loop.last %}
+      ---
+      {% endif %}
+  loop: "{{ yaml_configs }}"
+  loop_control:
+    extended: true
+
+- name: Run calico init.
+  become: no
+  ansible.builtin.command: kubectl apply -f calico_init.yaml

@@ -1,0 +1,86 @@
+
+- name: Check if Kubernetes is installed
+  command: kubectl version --short
+  become: no
+  register: kubectl_result
+  ignore_errors: true
+
+- name: Install if kubectl version rc is zero
+  when: kubectl_result.rc == 1
+  block:
+
+    - name: Create empty config file.
+      become: yes
+      ansible.builtin.copy:
+        content: ""
+        dest: /root/kubeadm_init.yaml
+        owner: root
+        group: root
+        mode: '0600'
+
+    - name: Create yaml configs.
+      become: yes
+      ansible.builtin.blockinfile:
+        path: /root/kubeadm_init.yaml
+        marker: "# {mark} ANSIBLE MANAGED BLOCK {{ item.kind }}"
+        block: |
+          {{ item | to_nice_yaml(sort_keys=false) }}
+          {%- if not ansible_loop.last %}
+          ---
+          {% endif %}
+      loop: "{{ yaml_configs }}"
+      loop_control:
+        extended: true
+
+    - name: Restart container runtime
+      ansible.builtin.service:
+        name: containerd
+        state: restarted 
+
+    - name: Run kubectl init
+      ansible.builtin.command: kubeadm init --config=/root/kubeadm_init.yaml --upload-certs
+
+    - name: Wait until the file /etc/kubernetes/admin.conf is present before continuing
+      ansible.builtin.wait_for:
+        path: /etc/kubernetes/admin.conf
+
+    - name: Wait for port 6443 to become open on the host, don't start checking for 10 seconds
+      ansible.builtin.wait_for:
+        port: 6443
+        delay: 10
+        host: localhost
+
+    - name: Create .kube directory
+      ansible.builtin.file:
+        path: .kube
+        state: directory
+        owner: sysadmin
+        group: sysadmin
+        mode: '0700'
+
+    - name: Copy admin.conf
+      ansible.builtin.copy:
+        remote_src: yes
+        src: /etc/kubernetes/admin.conf
+        dest: .kube/config
+        owner: sysadmin
+        group: sysadmin
+        mode: '0600'
+
+- name: Get cluster_server from master config file.
+  ansible.builtin.shell: cat /etc/kubernetes/manifests/kube-apiserver.yaml | grep "kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint" | cut -d ':' -f 2,3 | tr -d ' '
+  register: kubeadm_join_apiserver
+
+- name: Get token for join.
+  ansible.builtin.shell: kubeadm token create
+  register: kubeadm_join_token
+
+- name: Get ca cert hash for join.
+  ansible.builtin.shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: kubeadm_join_cert_hash
+
+- name: Set facts for join data.
+  ansible.builtin.set_fact: 
+    join_endpoint: "{{ kubeadm_join_apiserver.stdout }}"
+    join_token: "{{ kubeadm_join_token.stdout }}"
+    join_cert_hash: sha256:{{ kubeadm_join_cert_hash.stdout }}
