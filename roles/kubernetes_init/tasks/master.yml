@@ -13,13 +13,13 @@
 
     - name: Default kubeadm init (is a multi document yaml).
       ansible.builtin.debug: 
-        msg: kubeadm_init
+        msg: "{{ kubeadm_init }}"
 
     - name: Combine with user defined vars (initconfiguration, clusterconfiguration).
       ansible.builtin.copy:
         content: |-
           {{ item|combine(kubeadm_init, recursive=true)|to_nice_yaml }}
-        dest: /root/kubeadm_init.yaml
+        dest: /root/kubeadm_init_{{ idx }}.yaml
         owner: root
         group: root
         mode: '0600'
