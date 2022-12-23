@@ -1,7 +1,10 @@
 name: Update Ansible Galaxy Collection Version
 
-on: [push]
-
+on: 
+  push:
+    branches-ignore: 
+      - main
+      
 jobs:
   update-version:
     runs-on: ubuntu-latest
