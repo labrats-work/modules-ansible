@@ -7,9 +7,14 @@
 - name: Install if kubectl version rc is zero
   when: kubectl_result.rc == 1
   block:
-    - name: Default kubeadm init.
-      ansible.builtin.command: kubeadm config print init-defaults
+    - name: Default kubeadm init (is a multi document yaml).
+      ansible.builtin.shell: kubeadm config print init-defaults
       register: kubeadm_config_print
+
+    - name: Split into separate documents (initconfiguration, clusterconfiguration).
+      ansible.builtin.debug: "{{ item }}"
+      register: kubeadm_config
+      loop: "{{ kubeadm_config_print.stdout|split('---') }}"
 
     - name: Combine with user defined vars.
       ansible.builtin.copy:
@@ -20,7 +25,7 @@
         group: root
         mode: '0600'
       vars:
-        dict: "{{ kubeadm_config_print.stdout|from_yaml }}"
+        dict: "{{ kubeadm_config[0]|from_yaml }}"
         changes: "{{ kubeadm_init }}"
 
     - name: Restart container runtime
