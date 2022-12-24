@@ -1,3 +1,4 @@
 ---
 # defaults file for docker_prometheus
 etc_hosts: {}
+network_mode: ""

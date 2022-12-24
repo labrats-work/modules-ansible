@@ -35,6 +35,7 @@
     image: prom/prometheus:latest
     restart_policy: always
     etc_hosts: "{{ etc_hosts }}"
+    network_mode: "{{ network_mode }}"
     ports:
       - '9090:9090'
     volumes:
