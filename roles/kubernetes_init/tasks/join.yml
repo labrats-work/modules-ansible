@@ -26,6 +26,7 @@
           {%- if not ansible_loop.last %}
           ---
           {% endif %}
+      no_log: true  
       loop: "{{ yaml_configs }}"
       loop_control:
         extended: true
