@@ -15,13 +15,21 @@
   loop:
   - /etc/prometheus
 
-- name: Copy config
+- name: Create empty config file.
+  become: yes
   ansible.builtin.copy:
-    src:  files/prometheus.yml
+    content: ""
     dest: /etc/prometheus/prometheus.yml
     owner: prometheus
     group: prometheus
     mode: 0644
+
+- name: Create yaml config.
+  become: yes
+  ansible.builtin.blockinfile:
+    path: /etc/prometheus/prometheus.yml
+    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    block: "{{ prometheus_config | to_nice_yaml(sort_keys=false) }}"
 
 - name: Create Prometheus Volume
   community.docker.docker_volume:
