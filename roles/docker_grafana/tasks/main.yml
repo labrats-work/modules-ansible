@@ -1,0 +1,18 @@
+---
+# tasks file for docker_grafana
+
+- name: Create Grafana Volume
+  community.docker.docker_volume:
+    driver: "local"
+    name: grafana-storage
+
+- name: Create Grafana Container
+  community.docker.docker_container:
+    name: grafana
+    state: started
+    image: grafana/grafana:latest
+    restart_policy: always
+    ports:
+      - '3000:3000'
+    volumes:
+      - 'grafana-storage:/var/lib/grafana'
