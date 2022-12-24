@@ -1,0 +1,4 @@
+---
+# defaults file for systemd_prometheus
+version: "2.40.7"
+distro: "linux-amd64"

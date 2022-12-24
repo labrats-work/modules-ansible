@@ -1,0 +1,92 @@
+---
+# tasks file for systemd_prometheus
+
+- name: Create User and Directories
+  block:
+
+  - name: Create User
+    user:
+      name: prometheus
+      shell: /sbin/nologin
+
+  - name: Create directory if it does not exist
+    ansible.builtin.file:
+      path: "{{ item }}"
+      owner: prometheus
+      group: prometheus
+      state: directory
+      mode: 0750
+    loop:
+    - /var/lib/prometheus
+    - /etc/prometheus
+
+- name: Download and Extract Binaries
+  block:
+
+  - name: Download Prometheus Tar
+    get_url:
+      url: "https://github.com/prometheus/prometheus/releases/download/v{{ version }}/prometheus-{{ version }}.{{ distro }}.tar.gz"
+      dest: /tmp/prometheus.tar.gz
+
+  - name: Download Prometheus Checksums
+    get_url:
+      url: "https://github.com/prometheus/prometheus/releases/download/v{{ version }}/sha256sums.txt"
+      dest: /tmp/prometheus.sha256sums
+      
+  - name: Calculate Tar Checksum
+    shell: sha256sum /tmp/prometheus.tar.gz | cut -d ' ' -f 1
+    register: prometheus_tar_checksum_calculated
+
+  - name: Register Tar Checksum Downloaded
+    shell: cat /tmp/prometheus.sha256sums | grep {{ version }} | grep {{ distro }} | cut -d ' ' -f 1
+    register: prometheus_tar_checksum_downloaded
+
+  - name: Compare Prometheus checksum
+    assert:
+      that:
+        - prometheus_tar_checksum_downloaded.stdout == prometheus_tar_checksum_calculated.stdout
+
+  - name: Extract Prometheus binary
+    ansible.builtin.unarchive:
+      src: /tmp/prometheus.tar.gz
+      dest: /usr/local/bin
+      owner: prometheus
+      group: prometheus
+      include:
+      - prometheus-{{ version }}.{{ distro }}/prometheus
+      extra_opts:
+      - --strip-components=1
+      remote_src: yes
+      creates: /usr/local/bin/prometheus
+
+- name: Create Unit and Enable
+  block:
+
+  - name: Create prometheus unit file
+    template:
+      src: files/prometheus.service.j2
+      dest: /etc/systemd/system/prometheus.service
+      owner: root
+      group: root
+      mode: 0644
+    vars:
+      prometheus_path: "/usr/local/bin/prometheus"
+      config_path: "/etc/prometheus/prometheus.yml"
+      storage_path: "/var/lib/prometheus"
+      consoles_path: "/etc/prometheus/consoles"
+      libraries_path: "/etc/prometheus/console_libraries"
+
+  - name: Copy config
+    ansible.builtin.copy:
+      src:  files/prometheus.yml
+      dest: /etc/prometheus/prometheus.yml
+      owner: prometheus
+      group: prometheus
+      mode: 0644
+
+  - name: Enable and start prometheus service
+    systemd:
+      daemon_reload: yes
+      name: prometheus
+      state: restarted
+      enabled: yes
