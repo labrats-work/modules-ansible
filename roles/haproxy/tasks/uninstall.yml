@@ -1,5 +1,0 @@
-- name: Package removed.
-  ansible.builtin.package:
-    name: 
-      - haproxy  
-    state: absent
