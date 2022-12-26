@@ -11,32 +11,6 @@
       - haproxy
     state: present
 
-- name: Copy http error files.
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: "/etc/haproxy/errors/"
-    owner: haproxy
-    group: haproxy
-    mode: 0644
-  with_fileglob:
-    - haproxy/*.http
-
-- name: Create empty haproxy.cfg file.
-  become: yes
-  ansible.builtin.copy:
-    content: ""
-    dest: /etc/haproxy/haproxy.cfg
-    owner: haproxy
-    group: haproxy
-    mode: 0644
-
-- name: Update haproxy.cfg.
-  become: yes
-  ansible.builtin.blockinfile:
-    path: /etc/haproxy/haproxy.cfg
-    marker: "# {mark} ANSIBLE MANAGED BLOCK"
-    block: "{{ haproxy_config }}"
-
 - name: Service Enabled
   ansible.builtin.service:
     name: haproxy
