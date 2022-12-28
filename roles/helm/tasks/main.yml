@@ -1,0 +1,37 @@
+---
+# tasks file for helm
+
+- name: "Check if listed package is absent"
+  ansible.builtin.package:
+    name: helm
+    state: absent
+  check_mode: true
+  register: package_check
+
+- name: Install Helm from Apt
+  when: package_check is succeeded
+  block:
+
+    - ansible.builtin.apt: 
+        update_cache: yes
+
+    - ansible.builtin.package:
+        name:
+        - apt-transport-https
+        state: latest
+        
+    - ansible.builtin.get_url:
+        url: hhttps://baltocdn.com/helm/signing.asc
+        dest: /etc/apt/trusted.gpg.d/helm.asc
+
+    - ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/helm.asc] https://baltocdn.com/helm/stable/debian/ {{ ansible_distribution_release }} main"
+        state: present
+    
+    - ansible.builtin.apt: 
+        update_cache: yes
+
+    - ansible.builtin.package:
+        name: 
+          - helm
+        state: present
