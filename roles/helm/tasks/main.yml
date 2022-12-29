@@ -20,7 +20,7 @@
         - apt-transport-https
         state: latest
 
-    - name: Add the signing key
+    - ansible.builtin.name: Add the signing key
       apt_key:
         url: https://baltocdn.com/helm/signing.asc
         state: present
