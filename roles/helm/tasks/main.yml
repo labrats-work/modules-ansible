@@ -1,7 +1,7 @@
 ---
 # tasks file for helm
 
-- name: "Check if listed package is absent"
+- name: Check if package is absent
   ansible.builtin.package:
     name: helm
     state: absent
@@ -21,7 +21,7 @@
         state: latest
         
     - ansible.builtin.get_url:
-        url: hhttps://baltocdn.com/helm/signing.asc
+        url: https://baltocdn.com/helm/signing.asc
         dest: /etc/apt/trusted.gpg.d/helm.asc
 
     - ansible.builtin.apt_repository:
