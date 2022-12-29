@@ -23,9 +23,10 @@
     - ansible.builtin.apt_key:
         url: https://baltocdn.com/helm/signing.asc
         state: present
+        keyring: /etc/apt/trusted.gpg.d/helm.gpg
 
     - ansible.builtin.apt_repository:
-        repo: "deb https://baltocdn.com/helm/stable/debian/ {{ ansible_distribution_release }} main"
+        repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/helm.gpg] https://baltocdn.com/helm/stable/debian/ {{ ansible_distribution_release }} main"
         state: present
     
     - ansible.builtin.apt: 
