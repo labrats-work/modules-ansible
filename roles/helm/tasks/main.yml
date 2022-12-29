@@ -19,13 +19,14 @@
         name:
         - apt-transport-https
         state: latest
-        
-    - ansible.builtin.get_url:
+
+    - name: Add the signing key
+      apt_key:
         url: https://baltocdn.com/helm/signing.asc
-        dest: /etc/apt/trusted.gpg.d/helm.asc
+        state: present
 
     - ansible.builtin.apt_repository:
-        repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/helm.asc] https://baltocdn.com/helm/stable/debian/ {{ ansible_distribution_release }} main"
+        repo: "deb https://baltocdn.com/helm/stable/debian/ {{ ansible_distribution_release }} main"
         state: present
     
     - ansible.builtin.apt: 
