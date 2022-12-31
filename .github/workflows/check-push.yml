@@ -2,7 +2,7 @@ name: Update Ansible Galaxy Collection Version
 
 on: 
   push:
-    branches-ignore: 
+    branches: 
       - main
       
 jobs:
