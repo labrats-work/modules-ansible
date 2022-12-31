@@ -1,25 +1,49 @@
 ---
-# tasks file for
+# tasks file for containerd
 
-- name: Import variables specific to distribution
-  include_vars: "{{ item }}"
-  with_first_found:
-    - "vars/{{ ansible_facts['distribution'] }}-{{ ansible_facts['distribution_version'] }}.yml"
-    - "vars/{{ ansible_facts['distribution'] }}-{{ ansible_facts['distribution_major_version'] }}.yml"
-    - "vars/{{ ansible_facts['distribution'] }}.yml"
-    # os_family is used as a fallback for distros which are not currently
-    # supported, but are based on a supported distro family. For example,
-    # Oracle, Rocky, Alma and Alibaba linux, which are all "RedHat" based.
-    - "vars/{{ ansible_facts['os_family'] }}-{{ ansible_facts['distribution_version'] }}.yml"
-    - "vars/{{ ansible_facts['os_family'] }}-{{ ansible_facts['distribution_major_version'] }}.yml"
-    - "vars/{{ ansible_facts['os_family'] }}.yml"
-    # If neither distro nor family is supported, try a default configuration.
-    - "vars/default.yml"
+- name: Check if package is absent
+  ansible.builtin.package:
+    name: containerd.io
+    state: absent
+  check_mode: true
+  register: package_check
 
-- name: Install
-  include_tasks: install.yml
-  when: state|default('present') == 'present'
+- name: Install Containerd from Apt
+  when: package_check is succeeded
+  block:
 
-- name: Uninstall
-  include_tasks: uninstall.yml
-  when: state|default('present') == 'absent'
+    - ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+        keyring: /etc/apt/trusted.gpg.d/docker.gpg
+
+    - ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/ubuntu all stable"
+        state: present
+
+    # - name: Setup keyring Ubuntu | Debian
+    #   ansible.builtin.shell: |
+    #     mkdir -p /usr/share/keyrings/
+    #     rm /usr/share/keyrings/docker-archive-keyring.gpg
+    #     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    #     chmod a+r /usr/share/keyrings/docker-archive-keyring.gpg
+    #     echo "" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    #   when: ansible_facts['distribution'] == "Ubuntu" or ansible_facts['distribution'] == "Debian"
+
+    - ansible.builtin.apt: 
+        update_cache: yes
+
+    - ansible.builtin.package:
+        name: containerd.io
+        state: present
+
+    - name: Configure Service
+      ansible.builtin.shell: |
+        containerd config default > /etc/containerd/config.toml
+        sed -i 's|SystemdCgroup = false|SystemdCgroup = true|g' /etc/containerd/config.toml
+
+    - name: Service Started
+      service:
+        name: containerd
+        state: started
+        enabled: yes
