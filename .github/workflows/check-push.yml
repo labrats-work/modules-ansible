@@ -3,7 +3,7 @@ name: Update Ansible Galaxy Collection Version
 on: 
   push:
     branches: 
-      - main
+      - dev
       
 jobs:
   update-version:
