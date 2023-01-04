@@ -2,8 +2,6 @@ name: Update Ansible Galaxy Collection Version
 
 on: 
   push:
-    branches: 
-      - dev
       
 jobs:
   update-version:
@@ -20,6 +18,7 @@ jobs:
       
       # Increment the patch version number by one
       - id: patch_version
+        if: github.ref == 'refs/heads/dev'
         run: |
           version=$(echo "${{ steps.current_version.outputs.version }}" | awk -F':' '{print $2}')
           major=$(echo "$version" | awk -F'.' '{print $1}')
@@ -31,15 +30,24 @@ jobs:
           sed -i "s/$version/$new_version/g" galaxy.yml
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
       
-      # Commit the changes to the repository without pushing
+      # Config git
       - run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+
+      # Commit the changes
+      - if: github.ref == 'refs/heads/dev'
+        run: |
           git add galaxy.yml
           git commit -m "Update galaxy.yml version to ${{ steps.patch_version.outputs.new_version }}"
           git push
-          git tag ${{ steps.patch_version.outputs.new_version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Tag if main    
+      - if: github.ref == 'refs/heads/main'
+        run: |
+          git tag ${{ steps.current_version.outputs.version }}
           git push origin --tags
-          
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
