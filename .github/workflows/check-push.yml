@@ -14,7 +14,7 @@ jobs:
       - id: current_version
         shell: bash
         run: |
-          echo "version=$(cat galaxy.yml | grep version | awk -F':' '{print $2}')" >> $GITHUB_OUTPUT
+          echo "version=$(cat galaxy.yml | grep version | awk -F':' '{print $2}' | tr -d ' ')" >> $GITHUB_OUTPUT
       
       # Increment the patch version number by one
       - id: patch_version
