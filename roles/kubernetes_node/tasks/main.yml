@@ -16,10 +16,9 @@
     # If neither distro nor family is supported, try a default configuration.
     - "vars/default.yml"
 
-- name: Install
-  include_tasks: install.yml
-  when: state|default('present') == 'present'
-
-- name: Uninstall
-  include_tasks: uninstall.yml
-  when: state|default('present') == 'absent'
+- name: Configure Node
+  include_tasks: 
+  - 00_base_packages.yml
+  - 01_modprobe.yml
+  - 02_sysctl.yml
+  - 03_kubernetes_packages.yml

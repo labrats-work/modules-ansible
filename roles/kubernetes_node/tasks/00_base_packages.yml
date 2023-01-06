@@ -1,0 +1,19 @@
+- name: Base Packages
+  block:
+  
+    - name: Update packages Ubuntu | Debian.
+      ansible.builtin.apt: 
+        update_cache: yes
+
+    - name: Ensure pre-requisite packages.
+      package:
+        name: 
+        - wget 
+        - curl 
+        - vim 
+        - git
+        - gnupg2
+        - software-properties-common
+        - apt-transport-https
+        - ca-certificates
+        state: latest
