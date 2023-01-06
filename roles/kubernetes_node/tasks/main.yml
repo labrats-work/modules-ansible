@@ -16,9 +16,7 @@
     # If neither distro nor family is supported, try a default configuration.
     - "vars/default.yml"
 
-- name: Configure Node
-  include_tasks: 
-  - 00_base_packages.yml
-  - 01_modprobe.yml
-  - 02_sysctl.yml
-  - 03_kubernetes_packages.yml
+- include_tasks: 00_base_packages.yml
+- include_tasks: 01_modprobe.yml
+- include_tasks: 02_sysctl.yml
+- include_tasks: 03_kubernetes_packages.yml
