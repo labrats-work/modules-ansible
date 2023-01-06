@@ -1,12 +1,12 @@
 - name: Base Packages
   block:
-  
+
     - name: Update packages Ubuntu | Debian.
       ansible.builtin.apt: 
         update_cache: yes
 
     - name: Ensure pre-requisite packages.
-      package:
+      ansible.builtin.package:
         name: 
         - wget 
         - curl 
