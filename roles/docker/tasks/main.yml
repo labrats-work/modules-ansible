@@ -1,7 +1,7 @@
 ---
 # tasks file for docker
 
-- name: Install Docker from Apt
+- name: Install Docker from APT
   block:
 
     - ansible.builtin.apt_key:
@@ -13,7 +13,7 @@
         repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
         state: present
 
-    - name: Update packages Ubuntu | Debian
+    - name: Update APT packages
       ansible.builtin.apt: 
         update_cache: yes
 
