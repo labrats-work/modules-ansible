@@ -38,18 +38,6 @@
         group: root
         mode: '0770'
 
-    - name: Calculate hash of rendered content
-      ansible.builtin.digest:
-        path: /tmp/daemon.json
-        algorithm: sha256
-      register: new_hash
-
-    - name: Calculate hash of current content
-      ansible.builtin.digest:
-        path: /etc/docker/daemon.json
-        algorithm: sha256
-      register: current_hash
-
     - name: Copy new daemon.json to /etc/docker/
       ansible.builtin.copy:
         src: /tmp/daemon.json
@@ -57,11 +45,11 @@
         owner: root
         group: root
         mode: '0770'
-      when: new_hash.checksum != current_hash.checksum
+      when: ansible.builtin.stat('/tmp/daemon.json').checksum != ansible.builtin.stat('/etc/docker/daemon.json').checksum
 
     - name: Restart service docker - with daemon reload.
       ansible.builtin.systemd:
         state: restarted
         daemon_reload: yes
         name: docker
-      when: new_hash.checksum != current_hash.checksum
+      when: ansible.builtin.stat('/tmp/daemon.json').checksum != ansible.builtin.stat('/etc/docker/daemon.json').checksum
