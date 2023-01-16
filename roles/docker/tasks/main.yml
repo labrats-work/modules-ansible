@@ -1,7 +1,7 @@
 ---
 # tasks file for docker
 
-- name: Install Helm from Apt
+- name: Install Docker from Apt
   block:
 
     - ansible.builtin.apt_key:
