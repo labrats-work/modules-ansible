@@ -1,19 +1,32 @@
 ---
 # tasks file for docker
 
-- name: Check if package is absent
-  ansible.builtin.package:
-    name: docker-ce
-    state: absent
-  check_mode: true
-  register: package_check
-
-- name: Install Helm from Apt
-  when: package_check is succeeded
+- name: Install Docker from Apt
+  become: true
   block:
+    - name: Check if packages are already installed
+      ansible.builtin.apt: 
+        list_packages:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+      register: package_check
+      failed_when: package_check.stdout == ""
 
-    - ansible.builtin.apt: 
+    - name: Check if Docker service is running
+      ansible.builtin.shell: systemctl is-active docker
+      register: service_check
+      failed_when: service_check.rc != 0
+
+    - name: Install packages if not already installed
+      ansible.builtin.apt: 
         update_cache: yes
+      when: package_check.stdout == ""
 
     - ansible.builtin.package:
         name: 
@@ -21,7 +34,12 @@
           - curl
           - gnupg
           - lsb-release
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
         state: latest
+      when: package_check.stdout == ""
 
     - ansible.builtin.apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
@@ -35,15 +53,7 @@
     - name: Update packages Ubuntu | Debian
       ansible.builtin.apt: 
         update_cache: yes
-
-    - name: Ensure docker installed
-      ansible.builtin.package:
-        name: 
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
-          - docker-compose-plugin    
-        state: present
+      when: package_check.stdout == ""
 
     - name: Update docker daemon config.
       ansible.builtin.template:
@@ -52,9 +62,11 @@
         owner: root
         group: root
         mode: '0770'
+      when: service_check.rc != 0
 
     - name: Restart service docker - with daemon reload.
       ansible.builtin.systemd:
         state: restarted
         daemon_reload: yes
         name: docker
+      when: service_check.rc != 0
