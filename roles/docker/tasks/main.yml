@@ -30,18 +30,38 @@
           - docker-compose-plugin    
         state: present
 
-    - name: Update docker daemon config.
+    - name: Render docker daemon config to temp file.
       ansible.builtin.template:
         src: "templates/daemon.json.j2"
+        dest: /tmp/daemon.json
+        owner: root
+        group: root
+        mode: '0770'
+
+    - name: Calculate hash of rendered content
+      ansible.builtin.digest:
+        path: /tmp/daemon.json
+        algorithm: sha256
+      register: new_hash
+
+    - name: Calculate hash of current content
+      ansible.builtin.digest:
+        path: /etc/docker/daemon.json
+        algorithm: sha256
+      register: current_hash
+
+    - name: Copy new daemon.json to /etc/docker/
+      ansible.builtin.copy:
+        src: /tmp/daemon.json
         dest: /etc/docker/daemon.json
         owner: root
         group: root
         mode: '0770'
-      when: ansible.builtin.stat.mtime != ansible.builtin.stat.stat('/etc/docker/daemon.json').mtime
+      when: new_hash.checksum != current_hash.checksum
 
     - name: Restart service docker - with daemon reload.
       ansible.builtin.systemd:
         state: restarted
         daemon_reload: yes
         name: docker
-      when: ansible.builtin.stat.mtime != ansible.builtin.stat.stat('/etc/docker/daemon.json').mtime
+      when: new_hash.checksum != current_hash.checksum
