@@ -1,0 +1,22 @@
+- name: Test TLS connection to API server
+  hosts: workers
+  become: yes
+  vars:
+    ca_path: /etc/kubernetes/pki/ca.crt
+    kubelet_client_cert_path: /var/lib/kubelet/pki/kubelet-client-current.pem
+  gather_facts: no
+  tasks:
+  
+    - name: Test TLS connection to API server
+      shell: |
+        openssl s_client -connect {{ hostvars['master'].ansible_host }}:6443 -cert {{ kubelet_client_cert_path }} -key {{ kubelet_client_cert_path }} -CAfile {{ ca_path }} -verify_return_error < /dev/null
+      register: tls_check_result
+
+    - name: Debug
+      debug:
+        msg: "{{ tls_check_result }}"
+    
+    - name: Fail the task if TLS is not properly configured
+      fail:
+        msg: "TLS is not properly configured between the API server and kubelets"
+      when: tls_check_result.rc != 0
