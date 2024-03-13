@@ -2,6 +2,8 @@ name: Update Ansible Galaxy Collection Version
 
 on: 
   push:
+    branches:
+      - main
       
 jobs:
   update-version:
