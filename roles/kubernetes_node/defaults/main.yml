@@ -1,3 +1,13 @@
 ---
 # defaults file for kubernetes_node
-kubernetesVersion: "1.25.0-*"
+kubernetesVersion: "1.26.0-*"
+
+kubelet_sysctl:
+  vm.overcommit_memory: 1
+  kernel.panic: 10
+  kernel.panic_on_oops: 1
+
+kubernetes_sysctl:
+  net.bridge.bridge-nf-call-ip6tables: 1
+  net.bridge.bridge-nf-call-iptables: 1
+  net.ipv4.ip_forward: 1

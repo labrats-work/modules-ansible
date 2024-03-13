@@ -1,0 +1,25 @@
+- name: Kubernetes Components
+  block:
+        
+    - name: Install Kubernetes GPG key
+      become: true
+      ansible.builtin.apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Add Kubernetes apt repository
+      ansible.builtin.apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+    
+    - name: Update packages Ubuntu | Debian
+      ansible.builtin.apt: 
+        update_cache: yes
+
+    - name: Install Kubernetes Components
+      ansible.builtin.package:
+        name: 
+          - kubelet={{kubernetesVersion}}
+          - kubeadm={{kubernetesVersion}}
+          - kubectl={{kubernetesVersion}}
+        state: present
