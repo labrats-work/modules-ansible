@@ -1,0 +1,8 @@
+# defaults/main.yml
+kvm_packages:
+  - qemu-kvm
+  - libvirt-daemon
+  - libvirt-clients
+  - bridge-utils
+  - virt-manager
+  - python3-lxml

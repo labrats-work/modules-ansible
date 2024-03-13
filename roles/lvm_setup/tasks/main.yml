@@ -1,0 +1,22 @@
+# lvm_setup/tasks/main.yml
+---
+- name: Install required packages
+  ansible.builtin.package:
+    name: lvm2
+    state: present
+  become: true
+
+- name: Initialize the vg using pvs
+  community.general.lvg:
+    vg: "{{ item.key }}"
+    pvs: "{{ item.value.pvs }}"
+    state: present
+    force: yes
+  become: true
+  loop: "{{ vgs | dict2items }}"
+
+- name: Create and set up logical volumes
+  ansible.builtin.include_tasks: setup_lv.yml
+  loop: "{{ lvs | dict2items }}"
+  loop_control:
+    loop_var: lv_item
