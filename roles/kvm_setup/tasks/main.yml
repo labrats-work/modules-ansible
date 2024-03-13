@@ -1,0 +1,65 @@
+# tasks/main.yml
+---
+- name: Update apt cache
+  ansible.builtin.apt:
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+  become: yes
+
+- name: Install KVM related packages
+  ansible.builtin.package:
+    name: "{{ kvm_packages }}"
+    state: present
+  become: yes
+
+## KVM pool
+- name: Define KVM pool
+  community.libvirt.virt_pool:
+    name: kvm
+    command: define
+    xml: '{{ lookup("template", "dir.xml.j2") }}'
+  become: true
+  vars:
+    name: kvm
+    uuid: e698dcad-1e20-4115-bb99-1ff1a82b14fd
+    path: /vgs/data/kvm
+    capacity: 263086084096
+
+- name: Ensure that KVM pool is active
+  community.libvirt.virt_pool:
+    state: active
+    name: kvm
+
+- name: Ensure that KVM pool autostarts
+  community.libvirt.virt_pool:
+    autostart: true
+    name: kvm
+
+## IMAGES pool
+- name: Define IMAGES pool
+  community.libvirt.virt_pool:
+    name: images
+    command: define
+    xml: '{{ lookup("template", "dir.xml.j2") }}'
+  become: true
+  vars:
+    name: kvm-images
+    uuid: e1a447f5-055b-4a6c-86b2-bee400db9ce6
+    path: /vgs/data/kvm-images
+    capacity: 263086084096
+
+- name: Ensure that IMAGES pool is active
+  community.libvirt.virt_pool:
+    state: active
+    name: kvm-images
+
+- name: Ensure that IMAGES pool autostarts
+  community.libvirt.virt_pool:
+    autostart: true
+    name: kvm-images
+
+## DEFAULT pool
+- name: Ensure that default pool is deleted
+  community.libvirt.virt_pool:
+    state: deleted
+    name: default

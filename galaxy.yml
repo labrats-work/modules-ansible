@@ -17,6 +17,8 @@ license: "GPL-3.0-or-later"
 
 tags:
   - "linux"
+  - "kvm"
+  - "lvm"
   - "containers"
   - "kubernetes"
   - "haproxy"
