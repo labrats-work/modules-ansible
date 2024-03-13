@@ -1,0 +1,19 @@
+---
+vgs: 
+  data:
+    pvs:
+    - /dev/sdb
+    - /dev/sdc
+    - /dev/sdd
+    - /dev/sde
+    - /dev/sdf
+    - /dev/sdg
+    - /dev/sdh
+
+lvs:
+  kvm:
+    vg: data
+    size: 250G
+  kvm-images:
+    vg: data
+    size: 60G

@@ -1,0 +1,5 @@
+---
+# file: check-tls.yaml
+
+- import_playbook: master.yaml
+- import_playbook: workers.yaml

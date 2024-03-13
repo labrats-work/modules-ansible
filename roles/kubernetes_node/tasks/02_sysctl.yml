@@ -1,0 +1,24 @@
+- name: Load modules
+  block:
+
+    - name: Kubelet sysctl-settings
+      ansible.posix.sysctl:
+        name: '{{ item.key }}'
+        value: '{{ item.value }}'
+        sysctl_file: /etc/sysctl.d/90-kubelet.conf
+        sysctl_set: yes
+        state: present
+        reload: yes
+        ignoreerrors: yes
+      with_dict: "{{ kubelet_sysctl }}"
+
+    - name: Kubernetes sysctl-settings
+      ansible.posix.sysctl:
+        name: '{{ item.key }}'
+        value: '{{ item.value }}'
+        sysctl_file: /etc/sysctl.d/90-kubernetes.conf
+        sysctl_set: yes
+        state: present
+        reload: yes
+        ignoreerrors: yes
+      with_dict: "{{ kubernetes_sysctl }}"

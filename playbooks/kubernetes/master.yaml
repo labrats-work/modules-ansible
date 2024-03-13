@@ -1,0 +1,28 @@
+- name: Retrieve information about worker nodes and certificates
+  hosts: master
+  vars:
+    cert_path: /etc/kubernetes/pki
+    cert_types:
+      - crt
+      - key
+  gather_facts: no
+  tasks:
+    - name: Get the API server certificate
+      shell: |
+        find {{ cert_path }} -name apiserver.crt
+      register: apiserver_cert
+    - name: Set the API server certificate path as fact
+      set_fact:
+        apiserver_cert_path: "{{ apiserver_cert.stdout_lines[0] }}"
+    - name: Check worker nodes' kubelet certificates
+      shell: |
+        find {{ cert_path }} -name apiserver-kubelet-client.{{ item }} 
+      loop: "{{ cert_types }}"
+      register: kubelet_certs
+    - name: Set the kubelet certificate paths as facts
+      set_fact:
+        kubelet_{{ item.item }}_cert_path: "{{ item.stdout_lines[0] }}"
+      loop: "{{ kubelet_certs.results }}"
+    - name: Set worker node information as facts
+      set_fact:
+        worker_nodes: "{{ groups['workers'] }}"

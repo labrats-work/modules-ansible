@@ -1,0 +1,28 @@
+---
+- name: Create Logical Volume "{{ lv_item.key }}"
+  community.general.lvol:
+    vg: "{{ lv_item.value.vg }}"
+    lv: "{{ lv_item.key }}"
+    size: "{{ lv_item.value.size }}"
+  become: true
+
+- name: Format the logical volume with ext4
+  ansible.builtin.filesystem:
+    fstype: ext4
+    dev: "/dev/{{ lv_item.value.vg }}/{{ lv_item.key }}"
+  become: true
+
+- name: Ensure the mount directory exists
+  ansible.builtin.file:
+    path: "/vgs/{{ lv_item.value.vg }}/{{ lv_item.key }}"
+    state: directory
+  become: true
+
+- name: Mount the logical volume
+  ansible.builtin.mount:
+    path: "/vgs/{{ lv_item.value.vg }}/{{ lv_item.key }}"
+    src: "/dev/{{ lv_item.value.vg }}/{{ lv_item.key }}"
+    fstype: ext4
+    state: mounted
+    opts: defaults
+  become: true

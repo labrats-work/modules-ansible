@@ -1,0 +1,5 @@
+- name: Setup KVM Hosts
+  hosts: kvm
+  roles:
+    - lvm_setup
+    - kvm_setup
