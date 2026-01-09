@@ -1,25 +1,48 @@
+# Kubernetes apt repository moved to pkgs.k8s.io (legacy apt.kubernetes.io deprecated)
+# See: https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/change-package-repository/
 - name: Kubernetes Components
+  vars:
+    # Extract major.minor version (e.g., "1.32" from "1.32.0-1.1")
+    k8s_version_short: "{{ kubernetesVersion | regex_replace('^([0-9]+\\.[0-9]+).*', '\\1') }}"
   block:
-        
-    - name: Install Kubernetes GPG key
-      become: true
-      ansible.builtin.apt_key:
-        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+    - name: Install apt dependencies
+      ansible.builtin.package:
+        name:
+          - apt-transport-https
+          - curl
+          - gpg
         state: present
+
+    - name: Download Kubernetes GPG key
+      ansible.builtin.shell: |
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_short }}/deb/Release.key | gpg --dearmor -o /usr/share/keyrings/kubernetes-apt-keyring.gpg
+      args:
+        creates: /usr/share/keyrings/kubernetes-apt-keyring.gpg
 
     - name: Add Kubernetes apt repository
       ansible.builtin.apt_repository:
-        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        repo: "deb [signed-by=/usr/share/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_short }}/deb/ /"
         state: present
-    
+        filename: kubernetes
+
     - name: Update packages Ubuntu | Debian
-      ansible.builtin.apt: 
+      ansible.builtin.apt:
         update_cache: yes
 
     - name: Install Kubernetes Components
       ansible.builtin.package:
-        name: 
-          - kubelet={{kubernetesVersion}}
-          - kubeadm={{kubernetesVersion}}
-          - kubectl={{kubernetesVersion}}
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
         state: present
+
+    - name: Hold Kubernetes packages at current version
+      ansible.builtin.dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - kubelet
+        - kubeadm
+        - kubectl
