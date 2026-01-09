@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.73] - 2026-01-09
+
+### Changed
+- Add missing role metadata and documentation (#26)
+
 ## [1.0.71] - 2026-01-09
 
 ### Added
@@ -64,7 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `kvm_setup` - KVM hypervisor setup
   - `lvm_setup` - LVM storage configuration
 
-[Unreleased]: https://github.com/labrats-work/modules-ansible/compare/1.0.71...HEAD
+[Unreleased]: https://github.com/labrats-work/modules-ansible/compare/1.0.73...HEAD
 [1.0.71]: https://github.com/labrats-work/modules-ansible/compare/1.0.70...1.0.71
 [1.0.70]: https://github.com/labrats-work/modules-ansible/compare/1.0.69...1.0.70
 [1.0.69]: https://github.com/labrats-work/modules-ansible/compare/1.0.68...1.0.69
@@ -72,3 +77,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.0.67]: https://github.com/labrats-work/modules-ansible/compare/1.0.66...1.0.67
 [1.0.66]: https://github.com/labrats-work/modules-ansible/compare/1.0.65...1.0.66
 [1.0.65]: https://github.com/labrats-work/modules-ansible/releases/tag/1.0.65
+[1.0.73]: https://github.com/labrats-work/modules-ansible/compare/1.0.72...1.0.73
