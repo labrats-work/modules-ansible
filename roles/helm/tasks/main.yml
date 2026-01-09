@@ -1,5 +1,7 @@
 ---
 # tasks file for helm
+# Updated 2026-01: Helm apt repo moved from Balto to Buildkite
+# See: https://helm.sh/blog/debian-helm-repository-move/
 
 - name: Check if package is absent
   ansible.builtin.package:
@@ -12,27 +14,32 @@
   when: package_check is succeeded
   block:
 
-    - ansible.builtin.apt: 
-        update_cache: yes
-
-    - ansible.builtin.package:
+    - name: Install apt dependencies
+      ansible.builtin.package:
         name:
-        - apt-transport-https
-        state: latest
-
-    - ansible.builtin.apt_key:
-        url: https://baltocdn.com/helm/signing.asc
+          - apt-transport-https
+          - curl
+          - gpg
         state: present
-        keyring: /etc/apt/trusted.gpg.d/helm.gpg
 
-    - ansible.builtin.apt_repository:
-        repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main"
+    - name: Download Helm GPG key
+      ansible.builtin.shell: |
+        curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --dearmor -o /usr/share/keyrings/helm.gpg
+      args:
+        creates: /usr/share/keyrings/helm.gpg
+
+    - name: Add Helm apt repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main"
         state: present
-    
-    - ansible.builtin.apt: 
+        filename: helm-stable
+
+    - name: Update apt cache
+      ansible.builtin.apt:
         update_cache: yes
 
-    - ansible.builtin.package:
-        name: 
+    - name: Install Helm
+      ansible.builtin.package:
+        name:
           - helm
         state: present
