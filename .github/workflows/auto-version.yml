@@ -1,0 +1,51 @@
+name: Auto Version on PR Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+jobs:
+  version-and-tag:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get current version
+        id: current_version
+        run: |
+          version=$(grep -E '^version:' galaxy.yml | awk '{print $2}')
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "Current version: $version"
+
+      - name: Bump patch version
+        id: bump_version
+        run: |
+          version="${{ steps.current_version.outputs.version }}"
+          major=$(echo "$version" | cut -d. -f1)
+          minor=$(echo "$version" | cut -d. -f2)
+          patch=$(echo "$version" | cut -d. -f3)
+          new_patch=$((patch + 1))
+          new_version="$major.$minor.$new_patch"
+          echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          echo "Bumping version from $version to $new_version"
+          sed -i "s/^version: $version/version: $new_version/" galaxy.yml
+
+      - name: Configure git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Commit and tag
+        run: |
+          git add galaxy.yml
+          git commit -m "chore: bump version to ${{ steps.bump_version.outputs.new_version }} [skip ci]"
+          git tag "${{ steps.bump_version.outputs.new_version }}"
+          git push origin main --tags
