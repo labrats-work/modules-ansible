@@ -1,6 +1,8 @@
 ---
 # defaults file for kubernetes_node
-kubernetesVersion: "1.26.0-*"
+# Semantic version format: MAJOR.MINOR.PATCH (e.g., "1.32.0")
+# The role extracts MAJOR.MINOR for apt repository URL construction
+kubernetesVersion: "1.32.0"
 
 kubelet_sysctl:
   vm.overcommit_memory: 1
