@@ -1,0 +1,6 @@
+---
+# Collection runtime metadata
+# See: https://docs.ansible.com/ansible/latest/dev_guide/developing_collections_structure.html
+
+# Minimum Ansible version required to use this collection
+requires_ansible: ">=2.14.0"
