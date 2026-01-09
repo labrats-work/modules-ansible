@@ -14,11 +14,15 @@
           - gpg
         state: present
 
+    - name: Remove old Kubernetes GPG key if exists
+      ansible.builtin.file:
+        path: /usr/share/keyrings/kubernetes-apt-keyring.gpg
+        state: absent
+
     - name: Download Kubernetes GPG key
       ansible.builtin.shell: |
-        curl -fsSL https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_short }}/deb/Release.key | gpg --dearmor -o /usr/share/keyrings/kubernetes-apt-keyring.gpg
-      args:
-        creates: /usr/share/keyrings/kubernetes-apt-keyring.gpg
+        curl -fsSL https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_short }}/deb/Release.key | gpg --batch --yes --dearmor -o /usr/share/keyrings/kubernetes-apt-keyring.gpg
+        chmod 644 /usr/share/keyrings/kubernetes-apt-keyring.gpg
 
     - name: Add Kubernetes apt repository
       ansible.builtin.apt_repository:
