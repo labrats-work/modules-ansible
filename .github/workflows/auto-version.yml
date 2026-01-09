@@ -8,7 +8,7 @@ on:
 
 jobs:
   version-and-tag:
-    if: github.event.pull_request.merged == true && !startsWith(github.event.pull_request.title, 'chore: bump version')
+    if: github.event.pull_request.merged == true && !startsWith(github.event.pull_request.title, 'chore:')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -60,23 +60,17 @@ jobs:
           # Update galaxy.yml
           sed -i "s/^version: .*/version: ${NEW_VERSION}/" galaxy.yml
 
-          # Update CHANGELOG.md
+          # Update CHANGELOG.md - insert new version after Unreleased
           DATE=$(date +%Y-%m-%d)
+          ENTRY="## [${NEW_VERSION}] - ${DATE}\n\n### Changed\n- ${PR_TITLE} (#${PR_NUMBER})"
+          sed -i "s/^## \[Unreleased\]/## [Unreleased]\n\n${ENTRY}/" CHANGELOG.md
 
-          # Create new changelog entry
-          ENTRY="## [${NEW_VERSION}] - ${DATE}\n\n### Changed\n- ${PR_TITLE} (#${PR_NUMBER})\n"
+          # Update Unreleased link
+          sed -i "s|\[Unreleased\]: .*/compare/.*\.\.\.HEAD|[Unreleased]: https://github.com/labrats-work/modules-ansible/compare/${NEW_VERSION}...HEAD|" CHANGELOG.md
 
-          # Insert after [Unreleased] section
-          sed -i "/^## \[Unreleased\]/a\\
-\\
-${ENTRY}" CHANGELOG.md
-
-          # Update comparison links at bottom
-          sed -i "s|\[Unreleased\]: .*|\[Unreleased\]: https://github.com/labrats-work/modules-ansible/compare/${NEW_VERSION}...HEAD|" CHANGELOG.md
-
-          # Add new version link if not exists
+          # Add version link if not exists
           if ! grep -q "\[${NEW_VERSION}\]:" CHANGELOG.md; then
-            sed -i "/^\[Unreleased\]:/a [${NEW_VERSION}]: https://github.com/labrats-work/modules-ansible/compare/${PREV_VERSION}...${NEW_VERSION}" CHANGELOG.md
+            echo "[${NEW_VERSION}]: https://github.com/labrats-work/modules-ansible/compare/${PREV_VERSION}...${NEW_VERSION}" >> CHANGELOG.md
           fi
 
           git add galaxy.yml CHANGELOG.md
@@ -90,10 +84,6 @@ ${ENTRY}" CHANGELOG.md
         run: |
           gh pr create \
             --title "chore: bump version to ${NEW_VERSION}" \
-            --body "Automated version bump to ${NEW_VERSION}
-
-          Changes:
-          - Updated galaxy.yml version
-          - Updated CHANGELOG.md" \
+            --body "Automated version bump to ${NEW_VERSION}" \
             --base main \
             --head chore/version-bump-${NEW_VERSION}
