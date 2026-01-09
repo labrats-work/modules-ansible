@@ -1,12 +1,11 @@
 
-- name: Check if Kubernetes is installed
-  command: kubectl version --short
-  become: no
-  register: kubectl_result
-  ignore_errors: true
+- name: Check if Kubernetes cluster is already initialized
+  ansible.builtin.stat:
+    path: /etc/kubernetes/admin.conf
+  register: k8s_admin_conf
 
-- name: Install if kubectl version rc is zero
-  when: kubectl_result.rc == 1
+- name: Initialize cluster if not already initialized
+  when: not k8s_admin_conf.stat.exists
   block:
 
     - name: Create empty config file.
