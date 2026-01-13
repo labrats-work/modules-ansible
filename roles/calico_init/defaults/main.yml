@@ -1,2 +1,6 @@
 ---
 # defaults file for calico_init
+
+# Calico version - should match Kubernetes compatibility
+# See https://docs.tigera.io/calico/latest/getting-started/kubernetes/requirements
+calico_version: "v3.31.2"

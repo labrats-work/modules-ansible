@@ -6,7 +6,7 @@
   register: get_tigera_operator
 
 - name: Create tigera operator.
-  ansible.builtin.command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.24.0/manifests/tigera-operator.yaml
+  ansible.builtin.command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/tigera-operator.yaml
   when: get_tigera_operator.stdout != 'tigera-operator'
 
 - name: Create empty config file.
