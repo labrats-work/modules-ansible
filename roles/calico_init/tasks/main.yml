@@ -13,7 +13,15 @@
   ansible.builtin.command: kubectl wait --for=condition=available deployment/tigera-operator -n tigera-operator --timeout=120s
   when: get_tigera_operator.stdout != 'tigera-operator'
 
-- name: Wait for Installation CRD to be registered.
+- name: Wait for Installation CRD to exist.
+  ansible.builtin.command: kubectl get crd installations.operator.tigera.io
+  register: crd_check
+  until: crd_check.rc == 0
+  retries: 30
+  delay: 5
+  when: get_tigera_operator.stdout != 'tigera-operator'
+
+- name: Wait for Installation CRD to be established.
   ansible.builtin.command: kubectl wait --for=condition=established crd/installations.operator.tigera.io --timeout=60s
   when: get_tigera_operator.stdout != 'tigera-operator'
 
