@@ -9,6 +9,14 @@
   ansible.builtin.command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/tigera-operator.yaml
   when: get_tigera_operator.stdout != 'tigera-operator'
 
+- name: Wait for tigera-operator deployment to be available.
+  ansible.builtin.command: kubectl wait --for=condition=available deployment/tigera-operator -n tigera-operator --timeout=120s
+  when: get_tigera_operator.stdout != 'tigera-operator'
+
+- name: Wait for Installation CRD to be registered.
+  ansible.builtin.command: kubectl wait --for=condition=established crd/installations.operator.tigera.io --timeout=60s
+  when: get_tigera_operator.stdout != 'tigera-operator'
+
 - name: Create empty config file.
   ansible.builtin.copy:
     content: ""
